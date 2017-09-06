@@ -53,6 +53,9 @@ from datetime import datetime
 import tensorflow as tf
 from tensorflow.contrib import rnn
 from data_genrator import get_one_batch_trainset
+import os
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '7'
 
 n_features = 1
 hidden_neurons = 2
