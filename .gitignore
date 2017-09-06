@@ -1,0 +1,7 @@
+.tf-logs/
+tf-logs/*
+.idea/*
+__pychache__/*
+__pycache__/*
+model/*
+checkpoint
