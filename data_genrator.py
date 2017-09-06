@@ -9,9 +9,12 @@ def get_one_time_point_data(x_features=1):
 
 
 def get_one_timeserise_data(one_time_step_data_generator, x_features=1, times_length=5):
-    x = np.array([one_time_step_data_generator(x_features=x_features) for _ in range(times_length)])
-
-    y = np.array([np.mean(x)])
+    # x = np.array([one_time_step_data_generator(x_features=x_features) for _ in range(times_length)])
+    def _func(n): return n ** 2
+    begin = random.randint(-10, 10)
+    x = np.array([[_func(i+begin)] for i in range(times_length)])
+    # y = np.array([np.mean(x)])
+    y = np.array([[_func(i+begin+1)] for i in range(times_length)])
 
     return x, y
 
@@ -35,13 +38,13 @@ assert one_dataset.shape == (5, )
 one_timeserise_x, one_timeserise_y = get_one_timeserise_data(get_one_time_point_data, x_features=1, times_length=5)
 
 assert one_timeserise_x.shape == (5, 1)
-assert one_timeserise_y.shape == (1, ), 'shape is: {}'.format(one_timeserise_y.shape)
-assert np.mean(one_timeserise_x) == one_timeserise_y
+assert one_timeserise_y.shape == (5, 1), 'shape is: {}'.format(one_timeserise_y.shape)
+# assert np.mean(one_timeserise_x) == one_timeserise_y
 
 one_trainset = get_one_batch_trainset(times_length=5, x_features=1, batch_size=128)
 x, y = one_trainset
 
 assert x.shape == (128, 5, 1)
-assert y.shape == (128, 1)
+assert y.shape == (128, 5, 1)
 
 print('test done!')

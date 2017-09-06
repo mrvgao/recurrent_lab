@@ -58,8 +58,8 @@ import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '7'
 
 n_features = 1
-hidden_neurons = 2
-times = 10
+hidden_neurons = 10
+times = 5
 y_dimension = 1
 
 
@@ -74,7 +74,7 @@ y_dimension = 1
 #           ]
 
 train_X = tf.placeholder(tf.float32, shape=(None, times, n_features), name='X')
-train_y = tf.placeholder(tf.float32, shape=(None, y_dimension), name='y')
+train_y = tf.placeholder(tf.float32, shape=(None, times, y_dimension), name='y')
 
 # gru_cell = rnn.GRUCell(num_units=hidden_neurons)
 # cell = rnn.BasicLSTMCell(num_units=hidden_neurons, state_is_tuple=False)
@@ -89,17 +89,19 @@ outputs, states = tf.nn.dynamic_rnn(cell, train_X, dtype=tf.float32)
 stacked_outputs = tf.reshape(outputs, [-1, times * hidden_neurons])
 # stacked_outputs shape is [None, 200]
 
-W = tf.Variable(tf.truncated_normal(shape=(times * hidden_neurons, y_dimension), stddev=0.05))
-b = tf.Variable(tf.zeros(shape=(y_dimension, )))
+W = tf.Variable(tf.truncated_normal(shape=(times * hidden_neurons, times * y_dimension), stddev=0.05))
+b = tf.Variable(tf.zeros(shape=(times * y_dimension, )))
 
-y_hat = tf.add(tf.matmul(stacked_outputs, W), b, name='y_hat')
+y_hat = tf.add(tf.matmul(stacked_outputs, W), b)
+# y_hat size is [None, time_steps * y_dimensions]
+y_hat = tf.reshape(y_hat, [-1, times, y_dimension], name='y_hat')
 
 loss = tf.losses.mean_squared_error(labels=train_y, predictions=y_hat)
 
 learning_rate = 0.01
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss=loss)
 
-train_epoch = 100
+train_epoch = 200
 
 init = tf.global_variables_initializer()
 
@@ -139,7 +141,7 @@ def train_epochs(sess):
 
             total_steps += 1
 
-    saver.save(sess, 'model/mean_model_length_10', global_step=total_steps)
+    saver.save(sess, 'model/square_seq_hidden_10', global_step=total_steps)
     print('save model succeed!')
 
 
