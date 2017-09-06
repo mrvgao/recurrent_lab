@@ -1,0 +1,2 @@
+model_checkpoint_path: "mean_model_length_10"
+all_model_checkpoint_paths: "mean_model_length_10"
