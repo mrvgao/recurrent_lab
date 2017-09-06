@@ -73,8 +73,8 @@ y_dimension = 1
 #            [2], # batch1-y = 2
 #           ]
 
-train_X = tf.placeholder(tf.float32, shape=(None, times, n_features), name='X')
-train_y = tf.placeholder(tf.float32, shape=(None, times, y_dimension), name='y')
+train_X = tf.placeholder(tf.float32, shape=(None, None, n_features), name='X')
+train_y = tf.placeholder(tf.float32, shape=(None, None, y_dimension), name='y')
 
 # gru_cell = rnn.GRUCell(num_units=hidden_neurons)
 # cell = rnn.BasicLSTMCell(num_units=hidden_neurons, state_is_tuple=False)
@@ -124,24 +124,28 @@ def train_epochs(sess):
     batch_num = total_train_size // batch_size
     for epoch in range(train_epoch):
         for batch in range(batch_num):
-            x, y = get_one_batch_trainset(times_length=times, x_features=n_features, batch_size=batch_num)
+            if batch % 2 == 0: length = 3
+            else: length = 5
+            x, y = get_one_batch_trainset(times_length=length, x_features=n_features, batch_size=batch_num)
             feed_dict = {train_X: x, train_y: y}
-            _loss, _ = sess.run([loss, optimizer], feed_dict=feed_dict)
-            if batch % 50 == 0:
-                print('epoch: {}--batch: {}---loss:{}'.format(epoch, batch, _loss))
-                summary = sess.run(merged_summary, feed_dict=feed_dict)
-                summary_writer.add_summary(summary, global_step=total_steps)
-
-                validation_x, validation_y = get_one_batch_trainset(times_length=times,
-                                                                    x_features=n_features,
-                                                                    batch_size=batch_size)
-
-                val_loss = sess.run([loss], feed_dict={train_X: validation_x, train_y: validation_y})
-                print('val loss: {}'.format(val_loss))
+            _output = sess.run(outputs, feed_dict=feed_dict)
+            print('epoch:{}--batch:{}'.format(epoch, batch))
+            # _loss, _ = sess.run([loss, optimizer], feed_dict=feed_dict)
+            # if batch % 50 == 0:
+            #     print('epoch: {}--batch: {}---loss:{}'.format(epoch, batch, _loss))
+            #     summary = sess.run(merged_summary, feed_dict=feed_dict)
+            #     summary_writer.add_summary(summary, global_step=total_steps)
+            #
+            #     validation_x, validation_y = get_one_batch_trainset(times_length=times,
+            #                                                         x_features=n_features,
+            #                                                         batch_size=batch_size)
+            #
+            #     val_loss = sess.run([loss], feed_dict={train_X: validation_x, train_y: validation_y})
+            #     print('val loss: {}'.format(val_loss))
 
             total_steps += 1
 
-    saver.save(sess, 'model/square_seq_hidden_10', global_step=total_steps)
+    saver.save(sess, 'model/test_dynamic_length', global_step=total_steps)
     print('save model succeed!')
 
 
